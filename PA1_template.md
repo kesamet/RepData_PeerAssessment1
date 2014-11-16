@@ -1,12 +1,13 @@
 # Reproducible Research: Peer Assessment 1
 
 
+### Loading and preprocessing the data
+We load the relevant library that is used throughout the code.
 
 ```r
 library(ggplot2)
 ```
 
-### Loading and preprocessing the data
 The data is processed into the following format.
 
 ```r
@@ -26,25 +27,34 @@ str(dt)
 For this part of the assignment, the missing values in the dataset are ignored.
 
 ```r
-dt2 <- dt[complete.cases(dt),]
+dt2 <- dt[complete.cases(dt), ]
+```
+
+We tabulate the total number of steps taken each day.
+
+```r
+dt2Agg <- aggregate(dt2$steps, list(date = dt2$date), FUN = "sum")
+colnames(dt2Agg) <- c("date", "totalSteps")
 ```
 
 The following plot shows a histogram of the total number of steps taken each day.
 
 ```r
-ggplot(dt2, aes(x=date, y=steps)) + 
-    geom_bar(stat="identity") + 
+ggplot(dt2Agg, aes(x=totalSteps)) + 
+    geom_histogram(colour="blue", fill='blue') + 
     labs(title="Total number of steps taken each day", 
-        x="Date", y="Total number of steps")
+        x="Total number of steps", y="Frequency")
 ```
 
-<img src="./PA1_template_files/figure-html/unnamed-chunk-4.png" title="plot of chunk unnamed-chunk-4" alt="plot of chunk unnamed-chunk-4" style="display: block; margin: auto;" />
+```
+## stat_bin: binwidth defaulted to range/30. Use 'binwidth = x' to adjust this.
+```
+
+![plot of chunk unnamed-chunk-5](PA1_template_files/figure-html/unnamed-chunk-5.png) 
 
 The mean and median total number of steps taken per day are
 
 ```r
-dt2Agg <- aggregate(dt2$steps, list(date = dt2$date), FUN = "sum")
-colnames(dt2Agg) <- c("date", "totalSteps")
 mean(dt2Agg$totalSteps)
 ```
 
@@ -78,12 +88,12 @@ ggplot(dt2Agg2, aes(interval, avSteps)) +
          x="Interval", y="Average number of steps")
 ```
 
-<img src="./PA1_template_files/figure-html/unnamed-chunk-7.png" title="plot of chunk unnamed-chunk-7" alt="plot of chunk unnamed-chunk-7" style="display: block; margin: auto;" />
+![plot of chunk unnamed-chunk-8](PA1_template_files/figure-html/unnamed-chunk-8.png) 
 
 The 5-minute interval that contains the maximum number of steps on average across all the days in the dataset is
 
 ```r
-dt2Agg2[dt2Agg2$avSteps==max(dt2Agg2$avSteps),]
+dt2Agg2[dt2Agg2$avSteps==max(dt2Agg2$avSteps), ]
 ```
 
 ```
@@ -95,17 +105,7 @@ dt2Agg2[dt2Agg2$avSteps==max(dt2Agg2$avSteps),]
 ### Imputing missing values
 Note that there are a number of days/intervals where there are missing values (coded as NA). The presence of missing days may introduce bias into some calculations or summaries of the data.
 
-The total number of missing values in the dataset is
-
-```r
-sum(is.na(dt$steps))
-```
-
-```
-## [1] 2304
-```
-
-We create a new dataset by filling in all of the missing values in the dataset using the mean for that 5-minute interval.
+The total number of missing values in the dataset is 2304. We create a new dataset by filling in all of the missing values in the dataset using the mean for that 5-minute interval.
 
 ```r
 dtNew <- dt
@@ -126,39 +126,36 @@ colnames(dtNewAgg) <- c("date", "totalSteps")
 The following plot shows a histogram of the total number of steps taken each day of the new dataset.
 
 ```r
-ggplot(dtNewAgg, aes(x=date, y=totalSteps, fill=totalSteps)) + 
-    geom_bar(stat="identity") + 
+ggplot(dtNewAgg, aes(x=totalSteps)) + 
+    geom_histogram(colour="blue", fill='blue') + 
     labs(title="Total number of steps taken each day", 
-        x="Date", y="Total number of steps")
+        x="Total number of steps", y="Frequency")
 ```
 
-<img src="./PA1_template_files/figure-html/unnamed-chunk-12.png" title="plot of chunk unnamed-chunk-12" alt="plot of chunk unnamed-chunk-12" style="display: block; margin: auto;" />
+```
+## stat_bin: binwidth defaulted to range/30. Use 'binwidth = x' to adjust this.
+```
+
+![plot of chunk unnamed-chunk-12](PA1_template_files/figure-html/unnamed-chunk-12.png) 
 
 The new mean and median total number of steps taken per day are
-```
+
+```r
 mean(dtNewAgg$totalSteps)
+```
+
+```
+## [1] 10766
+```
+
+```r
 median(dtNewAgg$totalSteps)
 ```
 
-Comparing the mean and median before and after imputing missing data,
-
-```r
-mean(dtNewAgg$totalSteps) - mean(dt2Agg$totalSteps)
 ```
-
+## [1] 10766
 ```
-## [1] 0
-```
-
-```r
-median(dtNewAgg$totalSteps) - median(dt2Agg$totalSteps)
-```
-
-```
-## [1] 1.189
-```
-
-This means that the values are very close to the estimates from the first part of the assignment. Imputing missing data does not affect much on the estimates of the total daily number of steps.
+which are very close to the estimates from the first part of the assignment. Imputing missing data does not affect much on the estimates of the total daily number of steps.
 
 
 ### Are there differences in activity patterns between weekdays and weekends?
@@ -189,4 +186,4 @@ ggplot(dtNewAgg2, aes(interval, avSteps, fill=dayWk)) +
          x="Interval", y="Average number of steps")
 ```
 
-![plot of chunk unnamed-chunk-16](./PA1_template_files/figure-html/unnamed-chunk-16.png) 
+![plot of chunk unnamed-chunk-16](PA1_template_files/figure-html/unnamed-chunk-16.png) 
